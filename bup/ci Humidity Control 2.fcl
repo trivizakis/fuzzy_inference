@@ -1,0 +1,47 @@
+FUNCTION_BLOCK ciHumidityControl
+
+VAR_INPUT
+  Humidity: REAL;
+END_VAR
+
+VAR_OUTPUT
+  SpeedFan: REAL;
+END_VAR
+
+FUZZIFY Humidity
+  ENABLED : TRUE;
+  RANGE := (0.000 .. 1.000);
+  TERM DRY := Triangle 0.000 0.105 0.210;
+  TERM NOT_TOO_DRY := Triangle 0.170 0.300 0.430;
+  TERM EE_SUITABLE := Triangle 0.380 0.430 0.480;
+  TERM SUITABLE := Triangle 0.440 0.490 0.540;
+  TERM NOT_TOO_WET := Triangle 0.500 0.625 0.750;
+  TERM WET := Triangle 0.700 0.850 1.000;
+END_FUZZIFY
+
+DEFUZZIFY SpeedFan
+  ENABLED : TRUE;
+  RANGE := (0.000 .. 1.000);
+  TERM STOP := Triangle 0.000 0.105 0.210;
+  TERM SLOW := Triangle 0.170 0.300 0.430;
+  TERM EE_MEDIUM := Triangle 0.380 0.430 0.480;
+  TERM MEDIUM := Triangle 0.440 0.490 0.540;
+  TERM FAST := Triangle 0.500 0.625 0.750;
+  TERM VERY_FAST := Triangle 0.700 0.850 1.000;
+  METHOD : COG;
+  ACCU : MAX;
+  DEFAULT := nan;
+END_DEFUZZIFY
+
+RULEBLOCK 
+  ENABLED : TRUE;
+  ACT : MIN;
+  RULE 1 : if Humidity is DRY then SpeedFan is STOP
+  RULE 2 : if Humidity is NOT_TOO_DRY then SpeedFan is SLOW
+  RULE 3 : if Humidity is EE_SUITABLE then SpeedFan is EE_MEDIUM
+  RULE 4 : if Humidity is SUITABLE then SpeedFan is MEDIUM
+  RULE 5 : if Humidity is NOT_TOO_WET then SpeedFan is FAST
+  RULE 6 : if Humidity is WET then SpeedFan is VERY_FAST
+END_RULEBLOCK
+
+END_FUNCTION_BLOCK
