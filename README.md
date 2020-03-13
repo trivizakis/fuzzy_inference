@@ -1,2 +1,2 @@
-# fuzzy_inference
-a fuzzy logic script for humidity - qt fuzzy lite
+# fuzzy inference
+a fuzzy logic script for humidity conteol - qt fuzzy lite
